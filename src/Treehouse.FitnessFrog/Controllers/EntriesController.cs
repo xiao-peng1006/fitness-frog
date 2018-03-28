@@ -85,6 +85,8 @@ namespace Treehouse.FitnessFrog.Controllers
                 return HttpNotFound();
             }
 
+            SetupActivitiesSelectListItems();
+
             // Pass the entry into the view
             return View(entry);
         }
