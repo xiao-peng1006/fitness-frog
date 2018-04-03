@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Diagnostics;
 using System.Linq;
 using Treehouse.FitnessFrog.Models;
 
@@ -15,25 +17,42 @@ namespace Treehouse.FitnessFrog.Data
     public class EntriesRepository
     {
         /// <summary>
+        /// Private method that returns a database context.
+        /// </summary>
+        /// <returns>An instance of the Context class.</returns>
+        static Context GetContext()
+        {
+            var context = new Context();
+            context.Database.Log = (message) => Debug.WriteLine(message);
+            return context;
+        }
+
+        /// <summary>
+        /// Returns a count of the comic books.
+        /// </summary>
+        /// <returns>An integer count of the comic books.</returns>
+        public static int GetEntryCount()
+        {
+            using (Context context = GetContext())
+            {
+                return context.Entries.Count();
+            }
+        }
+
+        /// <summary>
         /// Returns a collection of entries.
         /// </summary>
         /// <returns>A list of entries.</returns>
-        public List<Entry> GetEntries()
+        public IList<Entry> GetEntries()
         {
-            return Data.Entries
-                .Join(
-                    Data.Activities, // The inner collection
-                    e => e.ActivityId, // The outer selector
-                    a => a.Id,  // The inner selector
-                    (e, a) =>  // The result selector
-                    {
-                        e.Activity = a; // Set the entry's Activity property
-                        return e; // Return the entry
-                    }
-                    )
-                .OrderByDescending(e => e.Date)
-                .ThenByDescending(e => e.Id)
-                .ToList();
+            using (Context context = GetContext())
+            {
+                return context.Entries
+                        .Include(e => e.Activity)                  
+                        .OrderByDescending(e => e.Date)
+                        .ThenByDescending(e => e.Id)
+                        .ToList();
+            }
         }
 
         /// <summary>
@@ -43,19 +62,15 @@ namespace Treehouse.FitnessFrog.Data
         /// <returns>An entry.</returns>
         public Entry GetEntry(int id)
         {
-            Entry entry = Data.Entries
+            using (Context context = GetContext())
+            {
+                Entry entry = context.Entries
                 .Where(e => e.Id == id)
+                .Include(e => e.Activity)
                 .SingleOrDefault();
 
-            // Ensure that the activity property is not null.
-            if (entry.Activity == null)
-            {
-                entry.Activity = Data.Activities
-                    .Where(a => a.Id == entry.ActivityId)
-                    .SingleOrDefault();
+                return entry;
             }
-
-            return entry;
         }
 
         /// <summary>
@@ -64,13 +79,18 @@ namespace Treehouse.FitnessFrog.Data
         /// <param name="entry">The entry to add.</param>
         public void AddEntry(Entry entry)
         {
-            // Get the next available entry ID.
-            int nextAvailableEntryId = Data.Entries
-                .Max(e => e.Id) + 1;
+            using (Context context = GetContext())
+            {
+                // Get the next available entry ID.
+                int nextAvailableEntryId = context.Entries
+                    .Max(e => e.Id) + 1;
 
-            entry.Id = nextAvailableEntryId;
+                entry.Id = nextAvailableEntryId;
 
-            Data.Entries.Add(entry);
+                context.Entries.Add(entry);
+
+                context.SaveChanges();
+            }
         }
 
         /// <summary>
@@ -79,16 +99,16 @@ namespace Treehouse.FitnessFrog.Data
         /// <param name="entry">The entry to update.</param>
         public void UpdateEntry(Entry entry)
         {
-            // Find the index of the entry that we need to update.
-            int entryIndex = Data.Entries.FindIndex(e => e.Id == entry.Id);
-
-            if (entryIndex == -1)
+            using (Context context = GetContext())
             {
-                throw new Exception(
-                    string.Format("Unable to find an entry with an ID of {0}", entry.Id));
-            }
+                // Find the index of the entry that we need to update.
+                context.Entries.Attach(entry);
 
-            Data.Entries[entryIndex] = entry;
+                var Entry = context.Entry(entry);
+                Entry.State = EntityState.Modified;
+
+                context.SaveChanges();
+            }
         }
 
         /// <summary>
@@ -97,16 +117,23 @@ namespace Treehouse.FitnessFrog.Data
         /// <param name="id">The ID of the entry to delete.</param>
         public void DeleteEntry(int id)
         {
-            // Find the index of the entry that we need to delete.
-            int entryIndex = Data.Entries.FindIndex(e => e.Id == id);
-
-            if (entryIndex == -1)
+            using (Context context = GetContext())
             {
-                throw new Exception(
-                    string.Format("Unable to find an entry with an ID of {0}", id));
-            }
+                var entry = new Entry() { Id = id };
+                context.Entry(entry).State = EntityState.Deleted;
 
-            Data.Entries.RemoveAt(entryIndex);
+                context.SaveChanges();
+            }
+        }
+
+        public IList<Activity> GetActivities()
+        {
+            using (Context context = GetContext())
+            {
+                return context.Activities
+                    .OrderBy(a => a.Name)
+                    .ToList();
+            }
         }
     }
 }

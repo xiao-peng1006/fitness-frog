@@ -17,11 +17,5 @@ namespace Treehouse.FitnessFrog.Data
         /// Returns a collection of activities.
         /// </summary>
         /// <returns>A list of activities.</returns>
-        public List<Activity> GetActivities()
-        {
-            return Data.Activities
-                .OrderBy(a => a.Name)
-                .ToList();
-        }
     }
 }

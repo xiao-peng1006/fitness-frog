@@ -1,4 +1,6 @@
-﻿namespace Treehouse.FitnessFrog.Models
+﻿using System.Collections.Generic;
+
+namespace Treehouse.FitnessFrog.Models
 {
     /// <summary>
     /// Represents a physical activity.
@@ -6,34 +8,13 @@
     public class Activity
     {
         /// <summary>
-        /// The list of activity types.
-        /// </summary>
-        public enum ActivityType
-        {
-            Basketball = 1,
-            Biking = 2,
-            Hiking = 3,
-            Kayaking = 4,
-            PokemonGo = 5,
-            Running = 6,
-            Skiing = 7,
-            Swimming = 8,
-            Walking = 9,
-            WeightLifting = 10
-        }
-
-        /// <summary>
         /// Constructors an activity for the provided activity type and name.
         /// </summary>
         /// <param name="activityType">The activity type for the activity.</param>
         /// <param name="name">The name for the activity.</param>
-        public Activity(ActivityType activityType, string name = null)
+        public Activity()
         {
-            Id = (int)activityType;
-
-            // If we don't have a name argument, 
-            // then use the string representation of the activity type for the name.
-            Name = name ?? activityType.ToString();
+            Entries = new List<Entry>();
         }
 
         /// <summary>
@@ -45,5 +26,7 @@
         /// The name of the activity.
         /// </summary>
         public string Name { get; set; }
+
+        public ICollection<Entry> Entries { get; set; }
     }
 }

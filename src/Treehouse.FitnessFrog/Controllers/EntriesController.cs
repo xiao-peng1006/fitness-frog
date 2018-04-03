@@ -20,7 +20,7 @@ namespace Treehouse.FitnessFrog.Controllers
 
         public ActionResult Index()
         {
-            List<Entry> entries = _entriesRepository.GetEntries();
+            IList<Entry> entries = _entriesRepository.GetEntries();
 
             // Calculate the total activity.
             double totalActivity = entries
@@ -157,8 +157,8 @@ namespace Treehouse.FitnessFrog.Controllers
 
         private void SetupActivitiesSelectListItems()
         {
-            ViewBag.ActivitiesSelectListItems = new SelectList(
-                            Data.Data.Activities, "Id", "Name");
+            IList<Activity> activities = _entriesRepository.GetActivities();
+            ViewBag.ActivitiesSelectListItems = new SelectList(activities, "Id", "Name");
         }
 
     }
