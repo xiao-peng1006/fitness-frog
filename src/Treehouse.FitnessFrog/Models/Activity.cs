@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Treehouse.FitnessFrog.Models
 {
@@ -25,6 +26,7 @@ namespace Treehouse.FitnessFrog.Models
         /// <summary>
         /// The name of the activity.
         /// </summary>
+        [Required, StringLength(20)]
         public string Name { get; set; }
 
         public ICollection<Entry> Entries { get; set; }

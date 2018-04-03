@@ -120,7 +120,7 @@
     <Compile Include="Controllers\EntriesController.cs" />
     <Compile Include="Data\ActivitiesRepository.cs" />
     <Compile Include="Data\Context.cs" />
-    <Compile Include="Data\Databaseinitizlizer.cs" />
+    <Compile Include="Data\DatabaseInitizlizer.cs" />
     <Compile Include="Data\EntriesRepository.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

@@ -19,11 +19,6 @@ namespace Treehouse.FitnessFrog.Models
             High
         }
 
-        public Entry()
-        {
-            Activities = new List<Activity>();
-        }
-
         /// <summary>
         /// The ID of the entry.
         /// </summary>
@@ -39,6 +34,8 @@ namespace Treehouse.FitnessFrog.Models
         /// </summary>
         public Activity Activity { get; set; }
 
+        [Display(Name = "Activity")]
+        public int ActivityId { get; set; }
         /// <summary>
         /// The duration for the entry (in minutes).
         /// </summary>
@@ -59,7 +56,5 @@ namespace Treehouse.FitnessFrog.Models
         /// </summary>
         [MaxLength(200, ErrorMessage = "The Notes field cannot be longer than 200 characters.")]
         public string Notes { get; set; }
-
-        public ICollection<Activity> Activities { get; set; }
     }
 }

@@ -15,7 +15,7 @@ namespace Treehouse.FitnessFrog.Data
 
         public Context()
         {
-            Database.SetInitializer(new Databaseinitizlizer());
+            Database.SetInitializer(new DatabaseInitizlizer());
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

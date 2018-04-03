@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using System.Data.Entity;
 using Treehouse.FitnessFrog.Data;
 using Treehouse.FitnessFrog.Models;
 
@@ -11,16 +12,21 @@ namespace Treehouse.FitnessFrog.Controllers
 {
     public class EntriesController : Controller
     {
+        private Context _context = null;
         private EntriesRepository _entriesRepository = null;
 
         public EntriesController()
         {
-            _entriesRepository = new EntriesRepository();
+            _context = new Context();
         }
 
         public ActionResult Index()
         {
-            IList<Entry> entries = _entriesRepository.GetEntries();
+            var entries = _context.Entries
+                        .Include(e => e.Activity)
+                        .OrderByDescending(e => e.Date)
+                        .ThenByDescending(e => e.Id)
+                        .ToList();
 
             // Calculate the total activity.
             double totalActivity = entries
@@ -157,7 +163,9 @@ namespace Treehouse.FitnessFrog.Controllers
 
         private void SetupActivitiesSelectListItems()
         {
-            IList<Activity> activities = _entriesRepository.GetActivities();
+            IList<Activity> activities = _context.Activities
+                    .OrderBy(a => a.Name)
+                    .ToList();
             ViewBag.ActivitiesSelectListItems = new SelectList(activities, "Id", "Name");
         }
 

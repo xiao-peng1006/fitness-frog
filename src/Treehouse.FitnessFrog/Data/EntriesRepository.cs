@@ -135,5 +135,16 @@ namespace Treehouse.FitnessFrog.Data
                     .ToList();
             }
         }
+
+        public Activity GetActivity(int activityId)
+        {
+            using (Context context = GetContext())
+            {
+                return context.Activities
+                    .Where(a => a.Id == activityId)
+                    .SingleOrDefault();
+            }
+        }
+
     }
 }
