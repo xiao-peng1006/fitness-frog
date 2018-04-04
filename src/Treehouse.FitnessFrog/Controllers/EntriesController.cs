@@ -12,9 +12,16 @@ namespace Treehouse.FitnessFrog.Controllers
 {
     public class EntriesController : BaseController
     {
+        private EntriesRepository _entryRepository = null;
+
+        public EntriesController()
+        {
+            _entryRepository = new EntriesRepository(Context);
+        }
+
         public ActionResult Index()
         {
-            var entries = Repository.GetEntries();
+            var entries = _entryRepository.GetList();
 
             // Calculate the total activity.
             double totalActivity = entries
@@ -52,7 +59,7 @@ namespace Treehouse.FitnessFrog.Controllers
 
             if (ModelState.IsValid)
             {
-                Repository.AddEntry(entry);
+                _entryRepository.Add(entry);
 
                 TempData["Message"] = "Your entry was successfaully added!";
 
@@ -73,7 +80,7 @@ namespace Treehouse.FitnessFrog.Controllers
             }
 
             // Get the requested entry from the repository
-            var entry = Repository.GetEntry((int)id);
+            var entry = _entryRepository.Get((int)id);
 
             // Return a status of "not found" if the entry wasn't found
             if (entry == null)
@@ -96,7 +103,7 @@ namespace Treehouse.FitnessFrog.Controllers
             // If the entry is valid, use the repository to update entry, redirect user to the list page
             if (ModelState.IsValid)
             {
-                Repository.UpdateEntry(entry);
+                _entryRepository.Update(entry);
 
                 TempData["Message"] = "Your entry was successfaully updated!";
 
@@ -117,7 +124,7 @@ namespace Treehouse.FitnessFrog.Controllers
             }
 
             // Retrieve entry for the provided id parameter value
-            var entry = Repository.GetEntry((int)id);
+            var entry = _entryRepository.Get((int)id);
 
             // Retrun "not found" if entry wasn't found
             if (entry == null)
@@ -135,7 +142,7 @@ namespace Treehouse.FitnessFrog.Controllers
             // Delete entry
             var entry = new Entry() { Id = id };
 
-            Repository.DeleteEntry(entry);
+            _entryRepository.Delete(entry);
 
             TempData["Message"] = "Your entry was successfaully deleted!";
 

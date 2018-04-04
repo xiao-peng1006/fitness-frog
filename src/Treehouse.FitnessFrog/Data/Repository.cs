@@ -17,46 +17,17 @@ namespace Treehouse.FitnessFrog.Data
             _context = context;
         }
 
-        public Entry GetEntry(int id)
-        {
-            return _context.Entries
-                .Include(e => e.Activity)
-                .Where(e => e.Id == id)
-                .SingleOrDefault();
-        }
-
-        public IList<Entry> GetEntries()
-        {
-            return _context.Entries
-                .Include(e => e.Activity)
-                .OrderByDescending(e => e.Date)
-                .ThenByDescending(e => e.Id)
-                .ToList();
-        }
-
-        public void AddEntry(Entry entry)
-        {
-            _context.Entries.Add(entry);
-            _context.SaveChanges();
-        }
-
-        public void UpdateEntry(Entry entry)
-        {
-            _context.Entry(entry).State = EntityState.Modified;
-            _context.SaveChanges();
-        }
-
-        public void DeleteEntry(Entry entry)
-        {
-            _context.Entry(entry).State = EntityState.Deleted;
-            _context.SaveChanges();
-        }
-
         public IList<Activity> GetActivities()
         {
             return _context.Activities
                 .OrderBy(a => a.Name)
                 .ToList();
+        }
+
+        public void AddActivities(Activity activity)
+        {
+            _context.Activities.Add(activity);
+            _context.SaveChanges();
         }
     }
 }

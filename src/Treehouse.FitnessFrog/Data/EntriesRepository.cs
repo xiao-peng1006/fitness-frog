@@ -16,135 +16,46 @@ namespace Treehouse.FitnessFrog.Data
     /// </summary>
     public class EntriesRepository
     {
-        /// <summary>
-        /// Private method that returns a database context.
-        /// </summary>
-        /// <returns>An instance of the Context class.</returns>
-        static Context GetContext()
+        private Context _context = null;
+
+        public EntriesRepository(Context context)
         {
-            var context = new Context();
-            context.Database.Log = (message) => Debug.WriteLine(message);
-            return context;
+            _context = context;
         }
 
-        /// <summary>
-        /// Returns a count of the comic books.
-        /// </summary>
-        /// <returns>An integer count of the comic books.</returns>
-        public static int GetEntryCount()
+        public Entry Get(int id)
         {
-            using (Context context = GetContext())
-            {
-                return context.Entries.Count();
-            }
-        }
-
-        /// <summary>
-        /// Returns a collection of entries.
-        /// </summary>
-        /// <returns>A list of entries.</returns>
-        public IList<Entry> GetEntries()
-        {
-            using (Context context = GetContext())
-            {
-                return context.Entries
-                        .Include(e => e.Activity)                  
-                        .OrderByDescending(e => e.Date)
-                        .ThenByDescending(e => e.Id)
-                        .ToList();
-            }
-        }
-
-        /// <summary>
-        /// Returns a single entry for the provided ID.
-        /// </summary>
-        /// <param name="id">The ID for the entry to return.</param>
-        /// <returns>An entry.</returns>
-        public Entry GetEntry(int id)
-        {
-            using (Context context = GetContext())
-            {
-                Entry entry = context.Entries
-                .Where(e => e.Id == id)
+            return _context.Entries
                 .Include(e => e.Activity)
+                .Where(e => e.Id == id)
                 .SingleOrDefault();
-
-                return entry;
-            }
         }
 
-        /// <summary>
-        /// Adds an entry.
-        /// </summary>
-        /// <param name="entry">The entry to add.</param>
-        public void AddEntry(Entry entry)
+        public IList<Entry> GetList()
         {
-            using (Context context = GetContext())
-            {
-                // Get the next available entry ID.
-                int nextAvailableEntryId = context.Entries
-                    .Max(e => e.Id) + 1;
-
-                entry.Id = nextAvailableEntryId;
-
-                context.Entries.Add(entry);
-
-                context.SaveChanges();
-            }
+            return _context.Entries
+                .Include(e => e.Activity)
+                .OrderByDescending(e => e.Date)
+                .ThenByDescending(e => e.Id)
+                .ToList();
         }
 
-        /// <summary>
-        /// Updates an entry.
-        /// </summary>
-        /// <param name="entry">The entry to update.</param>
-        public void UpdateEntry(Entry entry)
+        public void Add(Entry entry)
         {
-            using (Context context = GetContext())
-            {
-                // Find the index of the entry that we need to update.
-                context.Entries.Attach(entry);
-
-                var Entry = context.Entry(entry);
-                Entry.State = EntityState.Modified;
-
-                context.SaveChanges();
-            }
+            _context.Entries.Add(entry);
+            _context.SaveChanges();
         }
 
-        /// <summary>
-        /// Deletes an entry.
-        /// </summary>
-        /// <param name="id">The ID of the entry to delete.</param>
-        public void DeleteEntry(int id)
+        public void Update(Entry entry)
         {
-            using (Context context = GetContext())
-            {
-                var entry = new Entry() { Id = id };
-                context.Entry(entry).State = EntityState.Deleted;
-
-                context.SaveChanges();
-            }
+            _context.Entry(entry).State = EntityState.Modified;
+            _context.SaveChanges();
         }
 
-        public IList<Activity> GetActivities()
+        public void Delete(Entry entry)
         {
-            using (Context context = GetContext())
-            {
-                return context.Activities
-                    .OrderBy(a => a.Name)
-                    .ToList();
-            }
+            _context.Entry(entry).State = EntityState.Deleted;
+            _context.SaveChanges();
         }
-
-        public Activity GetActivity(int activityId)
-        {
-            using (Context context = GetContext())
-            {
-                return context.Activities
-                    .Where(a => a.Id == activityId)
-                    .SingleOrDefault();
-            }
-        }
-
     }
 }
