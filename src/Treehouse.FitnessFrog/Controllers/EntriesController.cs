@@ -10,19 +10,11 @@ using Treehouse.FitnessFrog.Models;
 
 namespace Treehouse.FitnessFrog.Controllers
 {
-    public class EntriesController : Controller
+    public class EntriesController : BaseController
     {
-        private Context _context = null;
-        private EntriesRepository _entriesRepository = null;
-
-        public EntriesController()
-        {
-            _context = new Context();
-        }
-
         public ActionResult Index()
         {
-            var entries = _context.Entries
+            var entries = Context.Entries
                         .Include(e => e.Activity)
                         .OrderByDescending(e => e.Date)
                         .ThenByDescending(e => e.Id)
@@ -64,8 +56,8 @@ namespace Treehouse.FitnessFrog.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Entries.Add(entry);
-                _context.SaveChanges();
+                Context.Entries.Add(entry);
+                Context.SaveChanges();
 
                 TempData["Message"] = "Your entry was successfaully added!";
 
@@ -86,9 +78,10 @@ namespace Treehouse.FitnessFrog.Controllers
             }
 
             // Get the requested entry from the repository
-            var entry = _context.Entries
-                                        .Where(e => e.Id == id)
-                                        .SingleOrDefault();
+            var entry = Context.Entries
+                                .Include(e => e.Activity)
+                                .Where(e => e.Id == id)
+                                .SingleOrDefault();
 
             // Return a status of "not found" if the entry wasn't found
             if (entry == null)
@@ -111,8 +104,8 @@ namespace Treehouse.FitnessFrog.Controllers
             // If the entry is valid, use the repository to update entry, redirect user to the list page
             if (ModelState.IsValid)
             {
-                _context.Entry(entry).State = EntityState.Modified;
-                _context.SaveChanges();
+                Context.Entry(entry).State = EntityState.Modified;
+                Context.SaveChanges();
 
                 TempData["Message"] = "Your entry was successfaully updated!";
 
@@ -133,7 +126,8 @@ namespace Treehouse.FitnessFrog.Controllers
             }
 
             // Retrieve entry for the provided id parameter value
-            var entry = _context.Entries
+            var entry = Context.Entries
+                                .Include(e => e.Activity)
                                 .Where(e => e.Id == id)
                                 .SingleOrDefault();
 
@@ -151,13 +145,11 @@ namespace Treehouse.FitnessFrog.Controllers
         public ActionResult Delete(int id)
         {
             // Delete entry
-            var entry = _context.Entries
-                                .Where(e => e.Id == id)
-                                .SingleOrDefault();
+            var entry = new Entry() { Id = id };
 
-            _context.Entry(entry).State = EntityState.Deleted;
+            Context.Entry(entry).State = EntityState.Deleted;
 
-            _context.SaveChanges();
+            Context.SaveChanges();
 
             TempData["Message"] = "Your entry was successfaully deleted!";
 
@@ -175,27 +167,10 @@ namespace Treehouse.FitnessFrog.Controllers
 
         private void SetupActivitiesSelectListItems()
         {
-            IList<Activity> activities = _context.Activities
+            IList<Activity> activities = Context.Activities
                     .OrderBy(a => a.Name)
                     .ToList();
             ViewBag.ActivitiesSelectListItems = new SelectList(activities, "Id", "Name");
-        }
-
-        private bool _disposed = false;
-
-        protected override void Dispose(bool disposing)
-        {
-            if (_disposed)
-                return;
-            
-            if (disposing)
-            {
-                _context.Dispose();
-            }
-
-            _disposed = true;
-
-            base.Dispose(disposing);
         }
     }
 }
