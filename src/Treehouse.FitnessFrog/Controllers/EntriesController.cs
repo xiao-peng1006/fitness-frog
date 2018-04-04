@@ -64,7 +64,8 @@ namespace Treehouse.FitnessFrog.Controllers
 
             if (ModelState.IsValid)
             {
-                _entriesRepository.AddEntry(entry);
+                _context.Entries.Add(entry);
+                _context.SaveChanges();
 
                 TempData["Message"] = "Your entry was successfaully added!";
 
@@ -85,7 +86,9 @@ namespace Treehouse.FitnessFrog.Controllers
             }
 
             // Get the requested entry from the repository
-            Entry entry = _entriesRepository.GetEntry((int)id);
+            var entry = _context.Entries
+                                        .Where(e => e.Id == id)
+                                        .SingleOrDefault();
 
             // Return a status of "not found" if the entry wasn't found
             if (entry == null)
@@ -108,7 +111,8 @@ namespace Treehouse.FitnessFrog.Controllers
             // If the entry is valid, use the repository to update entry, redirect user to the list page
             if (ModelState.IsValid)
             {
-                _entriesRepository.UpdateEntry(entry);
+                _context.Entry(entry).State = EntityState.Modified;
+                _context.SaveChanges();
 
                 TempData["Message"] = "Your entry was successfaully updated!";
 
@@ -129,7 +133,9 @@ namespace Treehouse.FitnessFrog.Controllers
             }
 
             // Retrieve entry for the provided id parameter value
-            Entry entry = _entriesRepository.GetEntry((int)id);
+            var entry = _context.Entries
+                                .Where(e => e.Id == id)
+                                .SingleOrDefault();
 
             // Retrun "not found" if entry wasn't found
             if (entry == null)
@@ -145,7 +151,13 @@ namespace Treehouse.FitnessFrog.Controllers
         public ActionResult Delete(int id)
         {
             // Delete entry
-            _entriesRepository.DeleteEntry(id);
+            var entry = _context.Entries
+                                .Where(e => e.Id == id)
+                                .SingleOrDefault();
+
+            _context.Entry(entry).State = EntityState.Deleted;
+
+            _context.SaveChanges();
 
             TempData["Message"] = "Your entry was successfaully deleted!";
 
@@ -169,5 +181,21 @@ namespace Treehouse.FitnessFrog.Controllers
             ViewBag.ActivitiesSelectListItems = new SelectList(activities, "Id", "Name");
         }
 
+        private bool _disposed = false;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+            
+            if (disposing)
+            {
+                _context.Dispose();
+            }
+
+            _disposed = true;
+
+            base.Dispose(disposing);
+        }
     }
 }
