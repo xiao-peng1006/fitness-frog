@@ -123,6 +123,7 @@
     <Compile Include="Data\Context.cs" />
     <Compile Include="Data\DatabaseInitizlizer.cs" />
     <Compile Include="Data\EntriesRepository.cs" />
+    <Compile Include="Data\Repository.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
